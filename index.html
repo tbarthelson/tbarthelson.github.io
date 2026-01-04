@@ -3,57 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasmania Hiking Planner | 14-Day Guide</title>
+    <title>Tasmania: The Camping & Hiking Edition</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2canvas (For image generation) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for external link icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
         /* Base Settings */
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #F0FDF4; /* Very light mint/green tint */
-            color: #1F2937;
+            background-color: #ECFDF5; /* Emerald Tint */
+            color: #064E3B; /* Dark Emerald Text */
         }
 
-        /* Chart Container Strategy: Responsive & Controlled */
+        /* Chart Container Strategy */
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 600px; /* Cap width for readability */
-            height: 350px;    /* Base height */
+            max-width: 600px;
+            height: 350px;
             margin-left: auto;
             margin-right: auto;
             background-color: white;
             border-radius: 0.75rem;
             padding: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         @media (min-width: 768px) {
             .chart-container {
-                height: 400px; /* Taller on desktop */
+                height: 400px;
             }
         }
 
-        /* Timeline CSS (No SVG) */
+        /* Link Styling */
+        .hike-link {
+            display: inline-flex;
+            align-items: center;
+            color: #059669;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
+            margin-top: 0.25rem;
+        }
+        .hike-link:hover {
+            color: #047857;
+            text-decoration: underline;
+        }
+        .hike-link i {
+            margin-left: 6px;
+            font-size: 0.8em;
+        }
+
+        /* Timeline CSS */
         .timeline-line {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
             width: 4px;
             height: 100%;
-            background-color: #E5E7EB;
+            background-color: #D1FAE5;
             z-index: 0;
         }
         
         .timeline-dot {
-            height: 20px;
-            width: 20px;
-            background-color: #0D9488;
+            height: 24px;
+            width: 24px;
+            background-color: #10B981;
             border-radius: 50%;
             border: 4px solid #fff;
             position: absolute;
@@ -71,59 +94,66 @@
             }
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
+        /* Loading Overlay */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 100;
+            color: white;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
         }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #0D9488; 
-            border-radius: 4px;
-        }
-        
-        /* Utility: Hide on mobile if needed */
-        .desktop-only { display: none; }
-        @media(min-width: 768px) { .desktop-only { display: block; } }
 
-        /* Color Palette Classes (for reference)
-           Primary Teal: #0D9488
-           Secondary Indigo: #4F46E5
-           Accent Amber: #F59E0B
-           Background: #F0FDF4
-        */
+        /* Download Button Styles */
+        .download-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
     <!-- 
-    SOURCE MATERIAL ANALYSIS & PLAN (Embedded per instructions):
-    1. Topic: 2-Week Tasmania Hiking Trip (Challenging, Scenic, Multi-day).
-    2. Narrative:
-       - Intro: Hook the user with the "Wild Island" concept.
-       - Climate: Dec-Mar window explanation (Data: Rain/Temp).
-       - Hike Analysis: Compare top trails (Data: Distance vs Elevation).
-       - Region Battle: East Coast vs West Coast (Data: Radar comparison).
-       - Timeline: 14-Day flow (Visual Structure).
-       - Logistics: Costs & Tips (Data: Budget Breakdown).
-    3. Visual Choices (NO SVG/MERMAID):
-       - Climate: Mixed Chart (Bar/Line) -> Best for correlating temp with rain.
-       - Hikes: Bubble Chart -> Best for comparing 3 variables (Dist, Elev, Rating).
-       - Regions: Radar Chart -> Best for comparing qualitative profiles.
-       - Itinerary: CSS/HTML List -> Best for organizing sequential data.
-       - Budget: Doughnut Chart -> Best for showing composition of a whole.
+    SOURCE MATERIAL ANALYSIS & PLAN (Updated):
+    1. Focus: "Pack Hikes" & Camping. NO Cabins.
+    2. Changes: 
+       - Replace Three Capes with "Walls of Jerusalem" (Remote, camping, pack carry).
+       - Ensure East Coast mentions camping (Freycinet Circuit).
+       - Add AllTrails links to every hike card.
+       - Adjust Budget: Lower accommodation, higher food/gear (camping focus).
+    3. Palette: "Forest & Earth" - Emerald (#10B981), Stone (#78716C), Sky (#0EA5E9).
     -->
 </head>
-<body>
+<body id="capture-area">
+
+    <!-- DOWNLOAD BUTTON -->
+    <button id="downloadBtn" class="download-btn bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center gap-2">
+        <span class="text-xl">📸</span> Save Plan as Image
+    </button>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay">
+        <div class="text-2xl font-bold mb-2">Generating Image...</div>
+        <div>Creating your hiking plan...</div>
+    </div>
 
     <!-- HERO SECTION -->
-    <header class="bg-gradient-to-r from-teal-700 to-indigo-800 text-white py-16 px-4 mb-12 shadow-xl">
+    <header class="bg-gradient-to-br from-emerald-800 to-green-900 text-white py-16 px-4 mb-12 shadow-xl">
         <div class="max-w-5xl mx-auto text-center">
-            <h1 class="text-4xl md:text-6xl font-black mb-4 tracking-tight">TASMANIA WILDERNESS</h1>
-            <p class="text-xl md:text-2xl font-light text-teal-100 mb-8">The Ultimate 14-Day Hiking Strategy</p>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 tracking-tight">TASMANIA: FULL PACK</h1>
+            <p class="text-xl md:text-2xl font-light text-emerald-100 mb-8">14 Days. Tent Pitching. No Cabins.</p>
             <div class="flex flex-wrap justify-center gap-4 text-sm font-bold">
-                <span class="bg-white/20 px-4 py-2 rounded-full border border-white/30">🏔️ Alpine Peaks</span>
-                <span class="bg-white/20 px-4 py-2 rounded-full border border-white/30">🌊 Coastal Granite</span>
-                <span class="bg-white/20 px-4 py-2 rounded-full border border-white/30">🌿 Ancient Rainforest</span>
+                <span class="bg-white/20 px-4 py-2 rounded-full border border-white/30 backdrop-blur-sm">⛺ Remote Camping</span>
+                <span class="bg-white/20 px-4 py-2 rounded-full border border-white/30 backdrop-blur-sm">🥾 Challenging Tracks</span>
+                <span class="bg-white/20 px-4 py-2 rounded-full border border-white/30 backdrop-blur-sm">🗺️ Multi-Day Alpine</span>
             </div>
         </div>
     </header>
@@ -131,7 +161,7 @@
     <!-- MAIN CONTENT GRID -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24 pb-20">
 
-        <!-- SECTION 1: CLIMATE & TIMING -->
+        <!-- SECTION 1: CLIMATE -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div class="order-2 lg:order-1">
                 <div class="chart-container">
@@ -139,35 +169,33 @@
                 </div>
             </div>
             <div class="order-1 lg:order-2">
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-amber-500">
-                    <h2 class="text-3xl font-bold text-gray-800 mb-4">When to Go?</h2>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">The Camping Window</h2>
                     <p class="text-gray-600 mb-4 leading-relaxed">
-                        Tasmania lies in the path of the "Roaring Forties" winds. The hiking window is narrow. 
-                        <strong>December through March</strong> is critical for alpine access.
+                        When relying on a tent in the Tasmanian alpine, timing is survival. 
+                        <strong>February</strong> is your safest bet for dry ground and manageable nights, though snow is possible year-round.
                     </p>
                     <ul class="space-y-3 mb-6">
                         <li class="flex items-start">
-                            <span class="text-amber-500 font-bold mr-2">☀</span>
-                            <span><strong>Best Bet:</strong> February offers the warmest days and lowest average rainfall.</span>
+                            <span class="text-emerald-500 font-bold mr-2">✓</span>
+                            <span><strong>Best Time:</strong> Late Jan to Early March.</span>
                         </li>
                         <li class="flex items-start">
-                            <span class="text-indigo-500 font-bold mr-2">❄</span>
-                            <span><strong>Warning:</strong> Snow can fall on Cradle Mountain even in summer. Pack for all seasons.</span>
+                            <span class="text-red-500 font-bold mr-2">⚠</span>
+                            <span><strong>Gear Check:</strong> 4-Season tent & -5°C sleeping bag recommended for Walls of Jerusalem.</span>
                         </li>
                     </ul>
-                    <div class="text-sm text-gray-500 italic">Data Source: Bureau of Meteorology (Cradle Valley Avg)</div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 2: HIKE SELECTION MATRIX -->
+        <!-- SECTION 2: HIKE SELECTION (UPDATED FOR CAMPING) -->
         <section>
             <div class="text-center max-w-3xl mx-auto mb-10">
-                <h2 class="text-3xl font-bold text-indigo-800 mb-4">Effort vs. Reward Matrix</h2>
+                <h2 class="text-3xl font-bold text-emerald-900 mb-4">Pack-Carry Intensity Matrix</h2>
                 <p class="text-gray-600">
-                    We've plotted the top trails to help you balance difficulty with duration. 
-                    The <strong>Bubble Size</strong> represents popularity/crowds. 
-                    High & Right = Harder.
+                    We've prioritized hikes that get you away from crowds. 
+                    <strong>Walls of Jerusalem</strong> replaces the cabin-based walks for a true wilderness experience.
                 </p>
             </div>
             
@@ -180,152 +208,155 @@
                 </div>
                 <!-- DETAILS COL -->
                 <div class="space-y-4">
-                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-teal-600">
-                        <h3 class="font-bold text-lg text-teal-800">Cradle Summit ⛰️</h3>
-                        <p class="text-sm text-gray-600 mt-1">
-                            <strong>Type:</strong> Challenging Day Hike<br>
-                            <strong>Why:</strong> Iconic dolerite columns. Requires scrambling over boulders.
+                    <!-- Hike Card 1 -->
+                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-emerald-600">
+                        <h3 class="font-bold text-lg text-emerald-800">Walls of Jerusalem ⛺</h3>
+                        <p class="text-sm text-gray-600 mt-1 mb-2">
+                            <strong>Type:</strong> Multi-day (3-4 days) <br>
+                            <strong>Vibe:</strong> Remote alpine basin. No huts, just camping platforms.
                         </p>
+                        <a href="https://www.alltrails.com/trail/australia/tasmania/walls-of-jerusalem-via-wild-dog-creek" target="_blank" class="hike-link">
+                            View on AllTrails <i class="fas fa-external-link-alt"></i>
+                        </a>
                     </div>
-                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-indigo-600">
-                        <h3 class="font-bold text-lg text-indigo-800">Three Capes 🥾</h3>
-                        <p class="text-sm text-gray-600 mt-1">
-                            <strong>Type:</strong> Multi-day (4 Days)<br>
-                            <strong>Why:</strong> Accessible luxury hiking. Stay in cabins. Huge sea cliffs.
+                    <!-- Hike Card 2 -->
+                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-blue-500">
+                        <h3 class="font-bold text-lg text-blue-800">Freycinet Circuit 🌊</h3>
+                        <p class="text-sm text-gray-600 mt-1 mb-2">
+                            <strong>Type:</strong> Overnight (2 days) <br>
+                            <strong>Vibe:</strong> Carry your pack over Mt Graham to camp at remote Cooks Beach.
                         </p>
+                        <a href="https://www.alltrails.com/trail/australia/tasmania/freycinet-peninsula-circuit" target="_blank" class="hike-link">
+                            View on AllTrails <i class="fas fa-external-link-alt"></i>
+                        </a>
                     </div>
-                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-amber-500">
-                        <h3 class="font-bold text-lg text-amber-600">Wineglass Bay 🍷</h3>
-                        <p class="text-sm text-gray-600 mt-1">
-                            <strong>Type:</strong> Scenic/Steep<br>
-                            <strong>Why:</strong> The view is world-famous. Climb Mt Amos for the best angle (very steep).
+                    <!-- Hike Card 3 -->
+                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-stone-500">
+                        <h3 class="font-bold text-lg text-stone-700">Cradle Summit ⛰️</h3>
+                        <p class="text-sm text-gray-600 mt-1 mb-2">
+                            <strong>Type:</strong> Hard Day Hike <br>
+                            <strong>Vibe:</strong> Boulder scrambling. Leave the big pack at base.
                         </p>
+                        <a href="https://www.alltrails.com/trail/australia/tasmania/cradle-mountain-summit" target="_blank" class="hike-link">
+                            View on AllTrails <i class="fas fa-external-link-alt"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 3: REGIONAL VIBES -->
-        <section class="bg-indigo-900 text-white rounded-2xl p-8 lg:p-12 shadow-2xl">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h2 class="text-3xl font-bold text-teal-300 mb-6">East Coast vs. West Coast</h2>
-                    <p class="text-indigo-100 mb-6 leading-relaxed">
-                        Tasmania is a tale of two climates. The West is rugged, alpine, and wet (ancient rainforests). The East is drier, coastal, and relaxed (white sands and granite).
-                    </p>
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                        <div class="bg-indigo-800 p-3 rounded">
-                            <strong class="block text-amber-400 mb-1">West (Cradle)</strong>
-                            Dramatic peaks, wombats, rain gear essential.
-                        </div>
-                        <div class="bg-indigo-800 p-3 rounded">
-                            <strong class="block text-teal-400 mb-1">East (Freycinet)</strong>
-                            Swimming, sunrise views, coastal breezes.
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="chart-container bg-gray-50/5 text-gray-900"> <!-- Semi-transparent container -->
-                        <canvas id="radarChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 4: 14-DAY ITINERARY -->
+        <!-- SECTION 3: 14-DAY ITINERARY -->
         <section>
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">The 14-Day "Loop" Itinerary</h2>
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">The "Wild Camping" Loop</h2>
             
             <div class="relative max-w-4xl mx-auto">
-                <!-- Vertical Line -->
                 <div class="timeline-line"></div>
 
                 <!-- Day 1-3 -->
                 <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                    <div class="hidden md:block"></div> <!-- Spacer -->
-                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-teal-500 md:ml-8 ml-10">
+                    <div class="hidden md:block"></div>
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-500 md:ml-8 ml-10">
                         <div class="timeline-dot md:hidden" style="top: 20px; left: -24px;"></div>
-                        <span class="text-xs font-black text-teal-600 uppercase tracking-wide">Days 1-3 • The South</span>
-                        <h3 class="text-xl font-bold mb-2">Hobart & Wilderness</h3>
-                        <p class="text-sm text-gray-600 mb-2">Fly into Hobart. Pick up rental car (AWD recommended).</p>
-                        <ul class="text-sm space-y-1 text-gray-700">
-                            <li>📍 <strong>Mt Wellington:</strong> Drive to summit, hike "Organ Pipes".</li>
-                            <li>📍 <strong>Bruny Island:</strong> Ferry across for the Fluted Cape Walk.</li>
-                            <li>📍 <strong>Tasman Peninsula:</strong> Begin the Three Capes Track or day hike to Cape Raoul.</li>
-                        </ul>
+                        <span class="text-xs font-black text-indigo-600 uppercase tracking-wide">Days 1-3 • South</span>
+                        <h3 class="text-xl font-bold mb-2">Acclimatization</h3>
+                        <p class="text-sm text-gray-600 mb-3">Land Hobart. Grab gas canisters/supplies.</p>
+                        <div class="space-y-2">
+                            <div>
+                                <strong class="text-sm block">📍 Mt Wellington (Organ Pipes)</strong>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/mount-wellington-organ-pipes-circuit" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                            <div>
+                                <strong class="text-sm block">📍 Fluted Cape (Bruny Is.)</strong>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/fluted-cape-walk" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Day 4-7 -->
+                <!-- Day 4-6 -->
                 <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-amber-500 md:mr-8 ml-10 md:ml-0 md:text-right">
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500 md:mr-8 ml-10 md:ml-0 md:text-right">
                         <div class="timeline-dot md:hidden" style="top: 20px; left: -24px;"></div>
-                        <span class="text-xs font-black text-amber-600 uppercase tracking-wide">Days 4-7 • The East Coast</span>
-                        <h3 class="text-xl font-bold mb-2">Sun & Granite</h3>
-                        <p class="text-sm text-gray-600 mb-2">Drive North along the coast.</p>
-                        <ul class="text-sm space-y-1 text-gray-700">
-                            <li>📍 <strong>Freycinet NP:</strong> Sunrise hike up Mt Amos (Steep/Slippery).</li>
-                            <li>📍 <strong>Wineglass Bay:</strong> Beach walk and swim.</li>
-                            <li>📍 <strong>Bay of Fires:</strong> Iconic orange rocks. easy coastal walking.</li>
-                        </ul>
+                        <span class="text-xs font-black text-blue-600 uppercase tracking-wide">Days 4-6 • East Coast</span>
+                        <h3 class="text-xl font-bold mb-2">Granite & Sand</h3>
+                        <p class="text-sm text-gray-600 mb-3">Drive North. Camp at Friendly Beaches or do the overnight circuit.</p>
+                         <div class="space-y-2">
+                            <div>
+                                <strong class="text-sm block">📍 Mt Amos (Sunrise Scramble)</strong>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/mount-amos-track" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                            <div>
+                                <strong class="text-sm block">📍 Freycinet Peninsula Circuit</strong>
+                                <span class="text-xs text-gray-500 block">Camp at Cooks Beach (Pack Carry)</span>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/freycinet-peninsula-circuit" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="hidden md:block relative">
                          <div class="timeline-dot hidden md:block" style="top: 30px;"></div>
                     </div>
                 </div>
 
-                <!-- Day 8-11 -->
+                <!-- Day 7-10 -->
                 <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     <div class="hidden md:block relative">
                         <div class="timeline-dot hidden md:block" style="top: 30px;"></div>
                     </div> 
-                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-indigo-600 md:ml-8 ml-10">
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-emerald-600 md:ml-8 ml-10">
                         <div class="timeline-dot md:hidden" style="top: 20px; left: -24px;"></div>
-                        <span class="text-xs font-black text-indigo-600 uppercase tracking-wide">Days 8-11 • The Alpine Heart</span>
-                        <h3 class="text-xl font-bold mb-2">Cradle Mountain</h3>
-                        <p class="text-sm text-gray-600 mb-2">Drive inland to the high country. Stay at Cradle Valley.</p>
-                        <ul class="text-sm space-y-1 text-gray-700">
-                            <li>📍 <strong>The Summit:</strong> 8hr return, scrambling required.</li>
-                            <li>📍 <strong>Dove Lake Circuit:</strong> 2hr easier scenic walk.</li>
-                            <li>📍 <strong>Wombat Spotting:</strong> Ronny Creek at dusk.</li>
-                        </ul>
+                        <span class="text-xs font-black text-emerald-600 uppercase tracking-wide">Days 7-10 • The Main Event</span>
+                        <h3 class="text-xl font-bold mb-2">Walls of Jerusalem</h3>
+                        <p class="text-sm text-gray-600 mb-3">The highlight. Park at the gate, hike in with 3 days of food. Base camp at Wild Dog Creek.</p>
+                        <div class="space-y-2">
+                            <div>
+                                <strong class="text-sm block">📍 Walls of Jerusalem Circuit</strong>
+                                <span class="text-xs text-gray-500 block">Summit King Davids Peak & The Temple.</span>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/walls-of-jerusalem-via-wild-dog-creek" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Day 12-14 -->
+                <!-- Day 11-14 -->
                 <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-teal-600 md:mr-8 ml-10 md:ml-0 md:text-right">
+                    <div class="bg-white p-6 rounded-lg shadow-md border-t-4 border-stone-600 md:mr-8 ml-10 md:ml-0 md:text-right">
                         <div class="timeline-dot md:hidden" style="top: 20px; left: -24px;"></div>
-                        <span class="text-xs font-black text-teal-700 uppercase tracking-wide">Days 12-14 • The Return</span>
-                        <h3 class="text-xl font-bold mb-2">Waterfalls & Departure</h3>
-                        <p class="text-sm text-gray-600 mb-2">Loop back towards Hobart via the center.</p>
-                        <ul class="text-sm space-y-1 text-gray-700">
-                            <li>📍 <strong>Mt Field NP:</strong> Russell Falls & Tarn Shelf (Alpine lakes).</li>
-                            <li>📍 <strong>Return:</strong> Hobart for a final seafood dinner. Fly out.</li>
-                        </ul>
+                        <span class="text-xs font-black text-stone-700 uppercase tracking-wide">Days 11-14 • Cradle & Return</span>
+                        <h3 class="text-xl font-bold mb-2">Alpine Finale</h3>
+                        <p class="text-sm text-gray-600 mb-3">Day hikes at Cradle Mtn, then Mt Field on the drive back.</p>
+                        <div class="space-y-2">
+                            <div>
+                                <strong class="text-sm block">📍 Cradle Mtn Summit / Dove Lake</strong>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/cradle-mountain-summit" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                            <div>
+                                <strong class="text-sm block">📍 Tarn Shelf (Mt Field)</strong>
+                                <a href="https://www.alltrails.com/trail/australia/tasmania/tarn-shelf-circuit" target="_blank" class="hike-link text-xs">AllTrails Map</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="hidden md:block"></div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION 5: BUDGET & LOGISTICS -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-gray-50 p-8 rounded-xl border border-gray-200">
+        <!-- SECTION 4: BUDGET (CAMPING ADJUSTED) -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white p-8 rounded-xl shadow-lg">
             <div>
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Budget Estimator</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Camping Budget (2 People)</h2>
                 <div class="space-y-4">
                     <div class="flex items-start">
-                        <div class="bg-teal-100 p-2 rounded mr-4 text-teal-700">🚗</div>
+                        <div class="bg-green-100 p-2 rounded mr-4 text-green-700">⛺</div>
                         <div>
-                            <h4 class="font-bold">Car Hire is Key</h4>
-                            <p class="text-sm text-gray-600">Tasmania has limited public transport. Rentals are expensive (~$100-150/day in peak). Book 4-6 months ahead.</p>
+                            <h4 class="font-bold">Accommodation Savings</h4>
+                            <p class="text-sm text-gray-600">By swapping cabins for campsites, you save ~$600-800. Costs are mostly National Park camping fees.</p>
                         </div>
                     </div>
                     <div class="flex items-start">
-                        <div class="bg-amber-100 p-2 rounded mr-4 text-amber-700">🎫</div>
+                        <div class="bg-blue-100 p-2 rounded mr-4 text-blue-700">⛽</div>
                         <div>
-                            <h4 class="font-bold">Parks Pass</h4>
-                            <p class="text-sm text-gray-600">Purchase a "Holiday Pass" ($89 per vehicle) online. Covers entry to all National Parks for 8 weeks.</p>
+                            <h4 class="font-bold">Car Hire is the biggest cost</h4>
+                            <p class="text-sm text-gray-600">AWD recommended for the gravel road to Walls of Jerusalem trailhead.</p>
                         </div>
                     </div>
                 </div>
@@ -334,39 +365,35 @@
                 <div class="chart-container h-[350px]">
                     <canvas id="budgetChart"></canvas>
                 </div>
-                <p class="text-center text-xs text-gray-400 mt-2">Est. Cost for Couple (2 Weeks, Mid-Range)</p>
+                <p class="text-center text-xs text-gray-400 mt-2">Est. Cost for Couple (Camping Focus)</p>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-gray-800 text-gray-400 py-8 text-center text-sm">
-        <p>Planning Tool generated for Hiking Enthusiasts.</p>
-        <p class="mt-2">Always check the <span class="text-teal-400">Tasmania Parks & Wildlife Service</span> website for track closures and weather alerts.</p>
+    <footer class="bg-emerald-900 text-emerald-200 py-8 text-center text-sm">
+        <p>Generated for the Independent Hiker.</p>
+        <p class="mt-2">Links provided to AllTrails. Check <span class="text-white font-bold">Tasmania Parks</span> for official campsite bookings.</p>
     </footer>
 
-    <!-- SCRIPTS FOR VISUALIZATION -->
+    <!-- SCRIPTS -->
     <script>
-        // --- 1. CONFIGURATION & HELPERS ---
-
-        // Palette Definition
+        // --- CONFIG ---
         const colors = {
-            teal: '#0D9488',
-            tealLight: 'rgba(13, 148, 136, 0.6)',
-            indigo: '#4F46E5',
-            indigoLight: 'rgba(79, 70, 229, 0.6)',
-            amber: '#F59E0B',
-            amberLight: 'rgba(245, 158, 11, 0.6)',
-            gray: '#E5E7EB'
+            emerald: '#10B981',
+            emeraldLight: 'rgba(16, 185, 129, 0.6)',
+            blue: '#3B82F6',
+            blueLight: 'rgba(59, 130, 246, 0.6)',
+            stone: '#78716C',
+            stoneLight: 'rgba(120, 113, 108, 0.6)'
         };
 
-        // Helper: Label Wrapping (16 chars)
+        // Helper: Label Wrapping
         const wrapLabel = (str) => {
             if (str.length <= 16) return str;
             const words = str.split(' ');
             const lines = [];
             let currentLine = words[0];
-
             for (let i = 1; i < words.length; i++) {
                 if (currentLine.length + 1 + words[i].length <= 16) {
                     currentLine += ' ' + words[i];
@@ -379,17 +406,19 @@
             return lines;
         };
 
-        // Helper: Tooltip Callback
-        const tooltipTitleCallback = {
-            title: function(tooltipItems) {
-                const item = tooltipItems[0];
-                let label = item.chart.data.labels[item.dataIndex];
-                if (Array.isArray(label)) return label.join(' ');
-                return label;
+        // Helper: Tooltip
+        const tooltipConfig = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) return label.join(' ');
+                    return label;
+                }
             }
         };
 
-        // --- 2. CLIMATE CHART (Mixed Bar/Line) ---
+        // --- 1. CLIMATE CHART ---
         const ctxClimate = document.getElementById('climateChart').getContext('2d');
         new Chart(ctxClimate, {
             type: 'bar',
@@ -399,18 +428,15 @@
                     {
                         label: 'Rainfall (mm)',
                         data: [110, 85, 120, 160, 200, 220, 240, 230, 200, 180, 140, 120],
-                        backgroundColor: colors.tealLight,
-                        borderColor: colors.teal,
-                        borderWidth: 1,
-                        yAxisID: 'y',
+                        backgroundColor: colors.blueLight,
                         order: 2
                     },
                     {
                         label: 'Avg Max Temp (°C)',
-                        data: [18, 19, 16, 12, 9, 6, 5, 6, 8, 11, 14, 16], // Cradle Mountain Avgs
+                        data: [18, 19, 16, 12, 9, 6, 5, 6, 8, 11, 14, 16],
                         type: 'line',
-                        borderColor: colors.amber,
-                        backgroundColor: colors.amber,
+                        borderColor: colors.emerald,
+                        backgroundColor: colors.emerald,
                         borderWidth: 3,
                         tension: 0.4,
                         yAxisID: 'y1',
@@ -422,61 +448,48 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: { display: true, text: 'Cradle Mountain Climate Profile', font: { size: 16 } },
+                    title: { display: true, text: 'Alpine Weather (Walls of Jerusalem)', font: { size: 16 } },
                     tooltip: { mode: 'index', intersect: false }
                 },
                 scales: {
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: { display: true, text: 'Rainfall (mm)' }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: { display: true, text: 'Temp (°C)' },
-                        grid: { drawOnChartArea: false }
-                    }
+                    y: { type: 'linear', position: 'left', title: { display: true, text: 'Rain (mm)' } },
+                    y1: { type: 'linear', position: 'right', title: { display: true, text: 'Temp (°C)' }, grid: { drawOnChartArea: false } }
                 }
             }
         });
 
-        // --- 3. HIKE BUBBLE CHART ---
+        // --- 2. HIKE BUBBLE CHART (UPDATED DATA) ---
         const ctxBubble = document.getElementById('hikeBubbleChart').getContext('2d');
         new Chart(ctxBubble, {
             type: 'bubble',
             data: {
                 datasets: [
                     {
-                        label: 'Alpine/West',
+                        label: 'Multi-Day (Pack Carry)',
+                        data: [
+                            { x: 35, y: 1200, r: 20, hike: 'Walls of Jerusalem' }, // High effort
+                            { x: 30, y: 1000, r: 15, hike: 'Freycinet Circuit' }
+                        ],
+                        backgroundColor: colors.emeraldLight,
+                        borderColor: colors.emerald
+                    },
+                    {
+                        label: 'Day Hikes (Hard)',
                         data: [
                             { x: 12, y: 600, r: 25, hike: 'Cradle Summit' },
-                            { x: 6, y: 200, r: 30, hike: 'Dove Lake' },
-                            { x: 14, y: 500, r: 15, hike: 'Tarn Shelf' }
+                            { x: 4, y: 400, r: 18, hike: 'Mt Amos' }
                         ],
-                        backgroundColor: colors.tealLight,
-                        borderColor: colors.teal
+                        backgroundColor: colors.stoneLight,
+                        borderColor: colors.stone
                     },
                     {
-                        label: 'Coastal/East',
+                        label: 'Day Hikes (Scenic)',
                         data: [
-                            { x: 4, y: 400, r: 20, hike: 'Mt Amos' },
-                            { x: 11, y: 300, r: 28, hike: 'Wineglass Bay' },
-                            { x: 48, y: 900, r: 15, hike: 'Three Capes' } // Multi-day
+                            { x: 14, y: 500, r: 15, hike: 'Tarn Shelf' },
+                            { x: 6, y: 200, r: 22, hike: 'Dove Lake' }
                         ],
-                        backgroundColor: colors.amberLight,
-                        borderColor: colors.amber
-                    },
-                    {
-                        label: 'South',
-                        data: [
-                            { x: 14, y: 700, r: 18, hike: 'Mt Wellington' },
-                            { x: 5, y: 150, r: 12, hike: 'Cape Raoul' }
-                        ],
-                        backgroundColor: colors.indigoLight,
-                        borderColor: colors.indigo
+                        backgroundColor: colors.blueLight,
+                        borderColor: colors.blue
                     }
                 ]
             },
@@ -484,7 +497,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    title: { display: true, text: 'Hike Matrix: Distance vs Elevation', font: { size: 16 } },
+                    title: { display: true, text: 'Difficulty Matrix: Distance vs Elev', font: { size: 16 } },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -494,86 +507,29 @@
                     }
                 },
                 scales: {
-                    x: {
-                        title: { display: true, text: 'Total Distance (km)' },
-                        min: 0,
-                        max: 55
-                    },
-                    y: {
-                        title: { display: true, text: 'Elevation Gain (m)' },
-                        min: 0
-                    }
+                    x: { title: { display: true, text: 'Total Distance (km)' }, min: 0, max: 50 },
+                    y: { title: { display: true, text: 'Elevation Gain (m)' }, min: 0 }
                 }
             }
         });
 
-        // --- 4. REGION RADAR CHART ---
-        const ctxRadar = document.getElementById('radarChart').getContext('2d');
-        // Wrap labels for radar
-        const radarLabels = ['Technical Difficulty', 'Weather Risk', 'Scenic Drama', 'Crowds', 'Accessibility'].map(wrapLabel);
-        
-        new Chart(ctxRadar, {
-            type: 'radar',
-            data: {
-                labels: radarLabels,
-                datasets: [
-                    {
-                        label: 'West (Cradle)',
-                        data: [9, 10, 10, 8, 6],
-                        fill: true,
-                        backgroundColor: colors.tealLight,
-                        borderColor: colors.teal,
-                        pointBackgroundColor: colors.teal
-                    },
-                    {
-                        label: 'East (Freycinet)',
-                        data: [6, 4, 8, 9, 9],
-                        fill: true,
-                        backgroundColor: colors.amberLight,
-                        borderColor: colors.amber,
-                        pointBackgroundColor: colors.amber
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' },
-                    tooltip: {
-                        callbacks: tooltipTitleCallback.callbacks
-                    }
-                },
-                scales: {
-                    r: {
-                        angleLines: { color: '#ddd' },
-                        grid: { color: '#ddd' },
-                        pointLabels: {
-                            font: { size: 11, family: 'Roboto' }
-                        },
-                        suggestedMin: 0,
-                        suggestedMax: 10
-                    }
-                }
-            }
-        });
-
-        // --- 5. BUDGET DOUGHNUT CHART ---
+        // --- 3. BUDGET DOUGHNUT (UPDATED FOR CAMPING) ---
         const ctxBudget = document.getElementById('budgetChart').getContext('2d');
-        const budgetLabels = ['Car Hire (14d)', 'Accommodation', 'Food & Fuel', 'Flights', 'Gear & Passes'].map(wrapLabel);
+        const budgetLabels = ['Car Hire (14d)', 'Camping Fees', 'Food & Gas', 'Flights', 'Gear/Misc'].map(wrapLabel);
 
         new Chart(ctxBudget, {
             type: 'doughnut',
             data: {
                 labels: budgetLabels,
                 datasets: [{
-                    data: [1400, 1200, 800, 400, 200],
+                    // Accom reduced significantly, Car Hire high, Food increased slightly
+                    data: [1400, 300, 900, 400, 300], 
                     backgroundColor: [
-                        colors.teal,
-                        colors.indigo,
-                        colors.amber,
-                        '#6366F1', // Light Indigo
-                        '#14B8A6'  // Light Teal
+                        colors.stone,   // Car
+                        colors.emerald, // Camping Fees (Cheap!)
+                        colors.blue,    // Food
+                        '#6366F1',      // Flights
+                        '#F59E0B'       // Gear
                     ],
                     borderWidth: 0
                 }]
@@ -583,13 +539,44 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'right' },
-                    tooltip: {
-                        callbacks: tooltipTitleCallback.callbacks
-                    }
+                    tooltip: tooltipConfig
                 }
             }
         });
 
+        // --- 4. IMAGE CAPTURE ---
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const btn = this;
+            const overlay = document.getElementById('loadingOverlay');
+            btn.style.display = 'none';
+            overlay.style.display = 'flex';
+            window.scrollTo(0,0);
+
+            setTimeout(() => {
+                html2canvas(document.body, {
+                    scale: 2,
+                    backgroundColor: "#ECFDF5",
+                    useCORS: true,
+                    logging: false,
+                    windowWidth: document.body.scrollWidth,
+                    windowHeight: document.body.scrollHeight
+                }).then(canvas => {
+                    const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                    const link = document.createElement('a');
+                    link.download = 'Tasmania_Camping_Plan.png';
+                    link.href = image;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    overlay.style.display = 'none';
+                    btn.style.display = 'flex';
+                }).catch(err => {
+                    alert("Error generating image.");
+                    overlay.style.display = 'none';
+                    btn.style.display = 'flex';
+                });
+            }, 500);
+        });
     </script>
 </body>
 </html>
